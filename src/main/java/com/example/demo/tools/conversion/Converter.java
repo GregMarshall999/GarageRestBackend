@@ -1,6 +1,8 @@
 package com.example.demo.tools.conversion;
 
 import jakarta.persistence.Embedded;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class Converter {
@@ -164,26 +167,53 @@ public class Converter {
         }
     }
 
-    //TODO don't forget superclass
+    /**
+     * Sets an ExampleMatcher from the given object
+     * @param searchObject - object to set as example
+     * @return - Setup ExampleMatcher
+     * @param <O> - Type of object
+     */
     public <O> ExampleMatcher buildExampleMatcher(O searchObject) {
+        //Experimental function duplication
+        //TODO might need rework on ID checks and default values not null
+        //TODO tweek the ExampleMatcher matching method
+        Function<Triplet<ExampleMatcher, List<Field>, Class<?>>, ExampleMatcher> buildMatcherFromFields = o -> {
+            ExampleMatcher matcher = o.getValue0();
+            List<Field> objectFields = o.getValue1();
+            String fieldGetter;
+            Object fieldValue;
+
+            try {
+                for (Field field : objectFields) {
+                    if (field.getType().getSimpleName().equals("boolean"))
+                        fieldGetter = setupBooleanMethodName("is", field);
+                    else
+                        fieldGetter = setupMethodName("get", field);
+
+                    fieldValue = o.getValue2().getDeclaredMethod(fieldGetter).invoke(searchObject);
+                    if (fieldValue != null)
+                        matcher.withMatcher(field.getName(), new ExampleMatcher.GenericPropertyMatcher().startsWith());
+                }
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+
+            return matcher;
+        };
+
         ExampleMatcher matcher = ExampleMatcher.matching();
         List<Field> objectFields = List.of(searchObject.getClass().getDeclaredFields());
-        String fieldGetter;
-        Object fieldValue;
+        Class<?> superclass;
 
-        try {
-            for (Field field : objectFields) {
-                if(field.getType().getSimpleName().equals("boolean"))
-                    fieldGetter = setupBooleanMethodName("is", field);
-                else
-                    fieldGetter = setupMethodName("get", field);
+        matcher = buildMatcherFromFields.apply(new Triplet<>(matcher, objectFields, searchObject.getClass()));
 
-                fieldValue = searchObject.getClass().getDeclaredMethod(fieldGetter).invoke(searchObject);
-                if(fieldValue != null)
-                    matcher.withMatcher(field.getName(), new ExampleMatcher.GenericPropertyMatcher().startsWith());
-            }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+        superclass = searchObject.getClass().getSuperclass();
+        while(superclass != null && !superclass.getName().equals("java.lang.Object")) {
+            objectFields = List.of(superclass.getDeclaredFields());
+
+            matcher = buildMatcherFromFields.apply(new Triplet<>(matcher, objectFields, superclass));
+
+            superclass = superclass.getSuperclass();
         }
 
         return matcher;

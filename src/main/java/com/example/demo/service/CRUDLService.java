@@ -7,13 +7,13 @@ import com.example.demo.tools.conversion.Converter;
 import com.example.demo.tools.paging.PageRequest;
 import com.example.demo.tools.paging.PageRequestUtil;
 import com.example.demo.tools.paging.PagedResponse;
-import com.example.demo.tools.searching.SearchRequest;
 import com.example.demo.tools.sorting.SortRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -104,13 +104,32 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
     }
 
     @Override
-    public PagedResponse<DTO> sortSearch(SortRequest sortRequest, SearchRequest searchRequest, PageRequest pageRequest) {
-        return null;
+    public PagedResponse<DTO> sortSearch(DTO searchDTO, SortRequest sortRequest, PageRequest pageRequest) {
+        ENTITY entity = initObject(entityClass);
+        converter.convertSourceToTarget(searchDTO, entity);
+
+        Example<ENTITY> example = Example.of(entity, converter.buildExampleMatcher(searchDTO));
+
+        if(sortRequest.getDirection().equals("asc") || sortRequest.getDirection().equals("desc"))
+            return buildPagedResponse(repository.findAll(
+                    example,
+                    org.springframework.data.domain.PageRequest.of(
+                            pageRequest.getPage(),
+                            pageRequest.getSize(),
+                            Sort.by(Sort.Direction.fromString(sortRequest.getDirection()), sortRequest.getActive()))));
+
+        return search(searchDTO, pageRequest);
     }
 
     @Override
     public PagedResponse<DTO> sort(SortRequest sortRequest, PageRequest pageRequest) {
-        return null;
+        return switch (sortRequest.getDirection()) {
+            case "asc" -> buildPagedResponse(repository.findAll(org.springframework.data.domain.PageRequest.of(
+                    pageRequest.getPage(), pageRequest.getSize(), Sort.by(Sort.Direction.ASC, sortRequest.getActive()))));
+            case "desc" -> buildPagedResponse(repository.findAll(org.springframework.data.domain.PageRequest.of(
+                    pageRequest.getPage(), pageRequest.getSize(), Sort.by(Sort.Direction.DESC, sortRequest.getActive()))));
+            default -> list(pageRequest);
+        };
     }
 
     protected void updateEntity(ENTITY entity, DTO dto) {
