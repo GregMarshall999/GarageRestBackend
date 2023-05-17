@@ -1,7 +1,6 @@
 package com.example.demo.tools.conversion;
 
 import jakarta.persistence.Embedded;
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Component;
@@ -67,15 +66,17 @@ public class Converter {
                             List<Object> sourceInnerList = (List<Object>) source.getClass()
                                     .getDeclaredMethod(setupMethodName("get", sourceField)).invoke(source);
 
-                            for(Object o : sourceInnerList) {
-                                targetInnerObject = actualTypeArgument.getDeclaredConstructor().newInstance();
-                                convertSourceToTarget(o, targetInnerObject);
-                                targetInnerList.add(targetInnerObject);
-                            }
+                            if(sourceInnerList != null) {
+                                for(Object o : sourceInnerList) {
+                                    targetInnerObject = actualTypeArgument.getDeclaredConstructor().newInstance();
+                                    convertSourceToTarget(o, targetInnerObject);
+                                    targetInnerList.add(targetInnerObject);
+                                }
 
-                            target.getClass().getDeclaredMethod(setupMethodName("set", targetField),
-                                            targetField.getType())
-                                    .invoke(target, targetInnerList);
+                                target.getClass().getDeclaredMethod(setupMethodName("set", targetField),
+                                                targetField.getType())
+                                        .invoke(target, targetInnerList);
+                            }
                         }
                         continue;
                     }

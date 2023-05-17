@@ -1,9 +1,11 @@
 package com.example.demo.entity.embeddables;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 
 @Embeddable
 public class GarageFields {
+    @Embedded
     private GarageAccounting garageAccounting;
 
     private String ownerName;

@@ -2,10 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BaseDTO;
 import com.example.demo.entity.BaseEntity;
+import com.example.demo.repository.IBaseRepository;
 import com.example.demo.service.ICRUDLService;
 import com.example.demo.tools.paging.PageRequest;
 import com.example.demo.tools.paging.PagedResponse;
-import com.example.demo.tools.searching.SearchRequest;
 import com.example.demo.tools.sorting.SortRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +20,10 @@ public abstract class AbstractCRUDLController<ENTITY extends BaseEntity, DTO ext
     protected final ICRUDLService<ENTITY, DTO> service;
 
     @Autowired
-    public AbstractCRUDLController(ICRUDLService<ENTITY, DTO> service) {
+    public AbstractCRUDLController(ICRUDLService<ENTITY, DTO> service, Class<ENTITY> entityClass, Class<DTO> dtoClass,
+                                   IBaseRepository<ENTITY> repository) {
         this.service = service;
+        service.initService(entityClass, dtoClass, repository);
     }
 
     @PostMapping

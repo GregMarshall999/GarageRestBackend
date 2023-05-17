@@ -132,13 +132,13 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
         };
     }
 
-    protected void updateEntity(ENTITY entity, DTO dto) {
-        converter.convertSourceToTarget(dto, entity);
-    }
-
     @Override
     public DTO getStructure() {
         return initObject(dtoClass);
+    }
+
+    protected void updateEntity(ENTITY entity, DTO dto) {
+        converter.convertSourceToTarget(dto, entity);
     }
 
     private <O> O initObject(Class<O> objectClass) {
