@@ -52,8 +52,13 @@ public abstract class AbstractCRUDLController<ENTITY extends BaseEntity, DTO ext
     }
 
     @GetMapping("/sort")
-    public PagedResponse<DTO> sort(SortRequest request, PageRequest searchRequest) {
-        return service.sort(request, searchRequest);
+    public PagedResponse<DTO> sort(SortRequest sortRequest, PageRequest pageRequest) {
+        return service.sort(sortRequest, pageRequest);
+    }
+
+    @PostMapping("/sortSearch")
+    public PagedResponse<DTO> sortSearch(@RequestBody DTO searchDTO, SortRequest sortRequest, PageRequest pageRequest) {
+        return service.sortSearch(searchDTO, sortRequest, pageRequest);
     }
 
     @DeleteMapping("/{id}")
