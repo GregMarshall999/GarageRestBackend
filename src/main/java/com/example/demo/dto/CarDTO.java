@@ -6,8 +6,8 @@ public class CarDTO extends BaseDTO {
     private int cost;
     private int range;
     private String motInfo;
-    private WheelDTO wheel;
-    private GarageDTO garage;
+    private long wheelId;
+    private long garageId;
 
     public String getCarName() {
         return carName;
@@ -49,19 +49,19 @@ public class CarDTO extends BaseDTO {
         this.motInfo = motInfo;
     }
 
-    public WheelDTO getWheel() {
-        return wheel;
+    public long getWheelId() {
+        return wheelId;
     }
 
-    public void setWheel(WheelDTO wheel) {
-        this.wheel = wheel;
+    public void setWheelId(long wheelId) {
+        this.wheelId = wheelId;
     }
 
-    public GarageDTO getGarage() {
-        return garage;
+    public long getGarageId() {
+        return garageId;
     }
 
-    public void setGarage(GarageDTO garage) {
-        this.garage = garage;
+    public void setGarageId(long garageId) {
+        this.garageId = garageId;
     }
 }

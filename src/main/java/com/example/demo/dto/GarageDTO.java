@@ -7,7 +7,7 @@ public class GarageDTO extends BaseDTO {
     private int cost;
     private int income;
     private String ownerName;
-    private List<CarDTO> cars;
+    private List<Long> carIds;
 
     public String getRef() {
         return ref;
@@ -41,11 +41,11 @@ public class GarageDTO extends BaseDTO {
         this.ownerName = ownerName;
     }
 
-    public List<CarDTO> getCars() {
-        return cars;
+    public List<Long> getCarIds() {
+        return carIds;
     }
 
-    public void setCars(List<CarDTO> cars) {
-        this.cars = cars;
+    public void setCarIds(List<Long> carIds) {
+        this.carIds = carIds;
     }
 }
