@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Objects;
+
 @Configuration
 public class ApplicationStartupRunner implements CommandLineRunner {
 
@@ -20,6 +22,8 @@ public class ApplicationStartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        converter.initConverter();
+
         Car car = carRepository.findById(1L).orElse(null);
         CarDTO carDTO = new CarDTO();
 
@@ -28,6 +32,7 @@ public class ApplicationStartupRunner implements CommandLineRunner {
         Car carConvert = new Car();
         converter.convertSourceToTarget(carDTO, carConvert);
 
+        assert Objects.equals(car, carConvert);
         System.out.println();
     }
 }

@@ -1,14 +1,20 @@
 package com.example.demo.tools.conversion;
 
 import com.example.demo.entity.BaseEntity;
+import com.example.demo.repository.IBaseRepository;
+import com.example.demo.repository.ICarRepository;
+import com.example.demo.repository.IGarageRepository;
+import com.example.demo.repository.IWheelRepository;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,7 +26,22 @@ import static com.example.demo.tools.conversion.ConversionUtility.setValueToFiel
 @Component
 public class ObjectConverter implements ITypeAcceptor {
 
+    @Autowired
+    private ICarRepository carRepository;
 
+    @Autowired
+    private IGarageRepository garageRepository;
+
+    @Autowired
+    private IWheelRepository wheelRepository;
+
+    private Map<String, IBaseRepository> repositories = new HashMap<>();
+
+    public void initConverter() {
+        repositories.put("Car", carRepository);
+        repositories.put("Garage", garageRepository);
+        repositories.put("Wheel", wheelRepository);
+    }
 
     //needs to handle common fields in superclass
     //needs to handle common primitive fields
@@ -45,6 +66,8 @@ public class ObjectConverter implements ITypeAcceptor {
         Object sourceEntity;
         Object sourceEntityId;
 
+        String entityName;
+
         declaredTargetFields.forEach((s, f) -> {
             if(f.isAnnotationPresent(Embedded.class)) {
                 try {
@@ -62,7 +85,17 @@ public class ObjectConverter implements ITypeAcceptor {
             currentSourceField = declaredSourceFields.get(sourceFieldName);
             currentTargetField = declaredTargetFields.get(sourceFieldName);
 
-
+            //dto foreign key handling
+            if(currentSourceField.getType().equals(long.class) && currentSourceField.getName().endsWith("Id")) {
+                currentTargetField = declaredTargetFields.get(sourceFieldName.substring(0, sourceFieldName.length() - 2));
+                if(currentTargetField != null) {
+                    entityName = currentTargetField.getType().getSimpleName();
+                    sourceEntityId = getFieldValue(currentSourceField, source);
+                    sourceEntity = repositories.get(entityName).findById(sourceEntityId).orElse(null);
+                    setValueToField(currentTargetField, target, currentTargetField.getType(), sourceEntity);
+                }
+                continue;
+            }
 
             //identical field handling
             if(currentTargetField != null && currentTargetField.getType().equals(currentSourceField.getType()) && isAcceptedCommonType(currentTargetField.getType())) {
