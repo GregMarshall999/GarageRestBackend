@@ -6,7 +6,7 @@ import java.util.List;
 public class OwnerDTO extends BaseDTO {
     private String name;
     private List<LocalDateTime> appointments;
-    private List<Long> cars;
+    private List<Long> carIds;
 
     public String getName() {
         return name;
@@ -24,11 +24,11 @@ public class OwnerDTO extends BaseDTO {
         this.appointments = appointments;
     }
 
-    public List<Long> getCars() {
-        return cars;
+    public List<Long> getCarIds() {
+        return carIds;
     }
 
-    public void setCars(List<Long> cars) {
-        this.cars = cars;
+    public void setCarIds(List<Long> carIds) {
+        this.carIds = carIds;
     }
 }

@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class Owner extends BaseEntity {
 
     private List<LocalDateTime> appointments;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Car> cars;
 
     public String getName() {

@@ -1,8 +1,8 @@
 package com.example.demo.tools.autorun;
 
-import com.example.demo.dto.CarDTO;
-import com.example.demo.entity.Car;
-import com.example.demo.repository.ICarRepository;
+import com.example.demo.dto.OwnerDTO;
+import com.example.demo.entity.Owner;
+import com.example.demo.repository.IOwnerRepository;
 import com.example.demo.tools.conversion.ObjectConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,18 +15,18 @@ public class ApplicationStartupRunner implements CommandLineRunner {
     private ObjectConverter converter;
 
     @Autowired
-    private ICarRepository carRepository;
+    private IOwnerRepository ownerRepository;
 
     @Override
     public void run(String... args) throws Exception {
 
-        Car car = carRepository.findById(1L).orElse(null);
-        CarDTO carDTO = new CarDTO();
+        Owner owner = ownerRepository.findById(1L).orElse(null);
+        OwnerDTO ownerDTO = new OwnerDTO();
 
-        converter.convertSourceToTarget(car, carDTO);
+        converter.convertSourceToTarget(owner, ownerDTO);
 
-        Car carConvert = new Car();
-        converter.convertSourceToTarget(carDTO, carConvert);
+        Owner ownerConvert = new Owner();
+        converter.convertSourceToTarget(ownerDTO, ownerConvert);
 
         System.out.println();
     }
