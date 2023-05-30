@@ -43,6 +43,16 @@ public class ObjectConverter implements ITypeAcceptor {
 
     private Map<String, IBaseRepository> repositories = new HashMap<>();
 
+    /**
+     * Converts the source object to the target object by porting identical fields
+     * @param source - source object to convert
+     * @param target - target object with source data
+     * @param <S> - type of source
+     * @param <T> - type of target
+     * @throws InvocationTargetException -
+     * @throws NoSuchMethodException -
+     * @throws IllegalAccessException -
+     */
     public <S, T> void convertSourceToTarget(S source, T target) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         if(repositories.isEmpty())
             initRepositories();
@@ -218,6 +228,26 @@ public class ObjectConverter implements ITypeAcceptor {
 
             sourceSuperclass = sourceSuperclass.getSuperclass();
             targetSuperclass = targetSuperclass.getSuperclass();
+        }
+    }
+
+    /**
+     * Converts the source list to the target list using a target builder
+     * The builder is used to create a new instance to modify with the converter then add to the list
+     * @param sources - source list
+     * @param targets - target list
+     * @param builder - target building container
+     * @param <S> - source type
+     * @param <T> - target type
+     */
+    public <S, T> void convertSourceListToTargetList(List<S> sources, List<T> targets, TargetBuilder<T> builder) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        if(targets.size() == 0) {
+            T target;
+            for (S source : sources) {
+                target = builder.resetTarget();
+                convertSourceToTarget(source, target);
+                targets.add(target);
+            }
         }
     }
 

@@ -1760,3 +1760,6 @@ Caused by: java.lang.NullPointerException: Cannot invoke "com.example.demo.repos
 2023-05-30T14:39:50.858+02:00  INFO 15500 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
 2023-05-30T14:39:50.870+02:00  INFO 15500 --- [main] com.example.demo.DemoApplication         : Started DemoApplication in 3.616 seconds (process running for 3.914)
 2023-05-30T14:40:58.312+02:00  WARN 15500 --- [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m8s830ms557µs600ns).
+2023-05-30T14:41:51.252+02:00  INFO 15500 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-05-30T14:41:51.254+02:00  INFO 15500 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2023-05-30T14:41:51.256+02:00  INFO 15500 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
