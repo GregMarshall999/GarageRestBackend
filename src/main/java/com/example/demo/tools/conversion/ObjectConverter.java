@@ -4,6 +4,7 @@ import com.example.demo.entity.BaseEntity;
 import com.example.demo.repository.IBaseRepository;
 import com.example.demo.repository.ICarRepository;
 import com.example.demo.repository.IGarageRepository;
+import com.example.demo.repository.IOwnerRepository;
 import com.example.demo.repository.IWheelRepository;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -33,17 +34,12 @@ public class ObjectConverter implements ITypeAcceptor {
     private IGarageRepository garageRepository;
 
     @Autowired
+    private IOwnerRepository ownerRepository;
+
+    @Autowired
     private IWheelRepository wheelRepository;
 
     private Map<String, IBaseRepository> repositories = new HashMap<>();
-
-    //needs to handle common fields in superclass
-    //needs to handle common primitive fields
-    //needs to handle common object fields
-    //needs to handle entity to id's (converting to DTO)
-    //try to handle dto entity id's to entity
-    //needs to handle embedded fields
-    //needs to recognise embedded fields pathing in dtos
 
     public <S, T> void convertSourceToTarget(S source, T target) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         if(repositories.isEmpty())
@@ -174,6 +170,7 @@ public class ObjectConverter implements ITypeAcceptor {
     private void initRepositories() {
         repositories.put("Car", carRepository);
         repositories.put("Garage", garageRepository);
+        repositories.put("Owner", ownerRepository);
         repositories.put("Wheel", wheelRepository);
     }
 
@@ -183,7 +180,7 @@ public class ObjectConverter implements ITypeAcceptor {
             return true;
 
         return switch (type.getTypeName()) {
-            case "java.lang.String" -> true;
+            case "java.lang.String", "java.time.LocalDateTime" -> true;
             default -> false;
         };
     }
