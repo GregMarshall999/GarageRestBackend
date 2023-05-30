@@ -53,10 +53,9 @@ public class ObjectConverter implements ITypeAcceptor {
         Field currentSourceField;
         Field currentTargetField;
 
-        List<Long> targetList;
-
         List<Object> embeddables = new ArrayList<>();
         List<Object> sourceList;
+        List<Object> targetList;
 
         //get source and target fields
         Map<String, Field> declaredSourceFields = getObjectFields(source);
@@ -65,7 +64,7 @@ public class ObjectConverter implements ITypeAcceptor {
         Object sourceEntity;
         Object sourceEntityId;
 
-        String entityName;
+        String entityName = "";
 
         declaredTargetFields.forEach((s, f) -> {
             if(f.isAnnotationPresent(Embedded.class)) {
@@ -103,7 +102,7 @@ public class ObjectConverter implements ITypeAcceptor {
 
                             if(sourceSuperclass != null && sourceSuperclass.equals(BaseEntity.class)) {
                                 sourceEntityId = sourceSuperclass.getDeclaredMethod("getId").invoke(o);
-                                targetList.add((long)sourceEntityId);
+                                targetList.add(sourceEntityId);
                             }
                         }
                     } catch (LazyInitializationException ignored) {}
@@ -113,11 +112,23 @@ public class ObjectConverter implements ITypeAcceptor {
                 }
 
                 //foreign key list
-                if(false) {
+                if(listTypeArgument.equals(Long.class) && currentSourceField.getName().endsWith("Ids")) {
+                    currentTargetField = declaredTargetFields.get(currentSourceField.getName().substring(0, currentSourceField.getName().length()-3) + "s");
+                    sourceList = (List<Object>) getFieldValue(currentSourceField, source);
+                    targetList = new ArrayList<>();
 
+                    if(currentTargetField != null) {
+                        entityName = ((ParameterizedType) currentTargetField.getGenericType()).getActualTypeArguments()[0].getTypeName();
+                        entityName = entityName.split("\\.")[entityName.split("\\.").length - 1];
+                        for (Object o : sourceList) {
+                            sourceEntity = repositories.get(entityName).findById(o).orElse(null);
+                            targetList.add(sourceEntity);
+                            System.out.println();
+                        }
+                        setValueToField(currentTargetField, target, currentTargetField.getType(), targetList);
+                    }
+                    continue;
                 }
-
-                System.out.println();
             }
 
             //dto foreign key handling
@@ -223,7 +234,7 @@ public class ObjectConverter implements ITypeAcceptor {
             return true;
 
         return switch (type.getTypeName()) {
-            case "java.lang.String", "java.time.LocalDateTime"/*, "java.util.List"*/ -> true;
+            case "java.lang.String", "java.time.LocalDateTime", "java.util.List" -> true;
             default -> false;
         };
     }
