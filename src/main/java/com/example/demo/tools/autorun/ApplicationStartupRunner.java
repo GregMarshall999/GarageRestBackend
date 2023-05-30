@@ -22,8 +22,6 @@ public class ApplicationStartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        converter.initConverter();
-
         Car car = carRepository.findById(1L).orElse(null);
         CarDTO carDTO = new CarDTO();
 
@@ -32,7 +30,6 @@ public class ApplicationStartupRunner implements CommandLineRunner {
         Car carConvert = new Car();
         converter.convertSourceToTarget(carDTO, carConvert);
 
-        assert Objects.equals(car, carConvert);
         System.out.println();
     }
 }

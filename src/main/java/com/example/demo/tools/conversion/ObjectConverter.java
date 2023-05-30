@@ -37,12 +37,6 @@ public class ObjectConverter implements ITypeAcceptor {
 
     private Map<String, IBaseRepository> repositories = new HashMap<>();
 
-    public void initConverter() {
-        repositories.put("Car", carRepository);
-        repositories.put("Garage", garageRepository);
-        repositories.put("Wheel", wheelRepository);
-    }
-
     //needs to handle common fields in superclass
     //needs to handle common primitive fields
     //needs to handle common object fields
@@ -52,6 +46,9 @@ public class ObjectConverter implements ITypeAcceptor {
     //needs to recognise embedded fields pathing in dtos
 
     public <S, T> void convertSourceToTarget(S source, T target) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        if(repositories.isEmpty())
+            initRepositories();
+
         Class<?> sourceSuperclass;
 
         Field currentSourceField;
@@ -172,6 +169,12 @@ public class ObjectConverter implements ITypeAcceptor {
             sourceSuperclass = sourceSuperclass.getSuperclass();
             targetSuperclass = targetSuperclass.getSuperclass();
         }
+    }
+
+    private void initRepositories() {
+        repositories.put("Car", carRepository);
+        repositories.put("Garage", garageRepository);
+        repositories.put("Wheel", wheelRepository);
     }
 
     @Override
