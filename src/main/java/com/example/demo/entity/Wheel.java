@@ -1,9 +1,11 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 @Entity
 public class Wheel extends BaseEntity {
+    @Column(nullable = false)
     private int price;
     private String brand;
 

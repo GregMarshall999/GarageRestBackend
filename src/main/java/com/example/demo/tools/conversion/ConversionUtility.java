@@ -54,9 +54,8 @@ abstract class ConversionUtility {
             else
                 getterName = "is" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
         }
-        else {
+        else
             getterName = "get" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
-        }
 
         return invoker.getClass().getDeclaredMethod(getterName).invoke(target);
     }
@@ -90,6 +89,13 @@ abstract class ConversionUtility {
      * @throws IllegalAccessException -
      */
     static <T, I> void setValueToField(Field field, I invoker, T target, Class<?> parameterType, Object value) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        invoker.getClass().getDeclaredMethod( "set" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1), parameterType).invoke(target, value);
+        String setterName = "";
+
+        if(field.getType().getSimpleName().equals("boolean") && field.getName().startsWith("is"))
+            setterName = "set" + field.getName().toUpperCase().charAt(2) + field.getName().substring(3);
+        else
+            setterName = "set" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
+
+        invoker.getClass().getDeclaredMethod(setterName, parameterType).invoke(target, value);
     }
 }

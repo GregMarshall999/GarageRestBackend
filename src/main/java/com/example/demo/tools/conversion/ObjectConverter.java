@@ -1,10 +1,15 @@
 package com.example.demo.tools.conversion;
 
+import com.example.demo.entity.BaseEntity;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +20,8 @@ import static com.example.demo.tools.conversion.ConversionUtility.setValueToFiel
 @Component
 public class ObjectConverter implements ITypeAcceptor {
 
+
+
     //needs to handle common fields in superclass
     //needs to handle common primitive fields
     //needs to handle common object fields
@@ -23,29 +30,73 @@ public class ObjectConverter implements ITypeAcceptor {
     //needs to handle embedded fields
     //needs to recognise embedded fields pathing in dtos
 
-    //first step is to collect all the fields and all their values from the source
-    //these values are stored in a map
-
     public <S, T> void convertSourceToTarget(S source, T target) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        Class<?> sourceSuperclass;
+
         Field currentSourceField;
         Field currentTargetField;
+
+        List<Object> embeddables = new ArrayList<>();
 
         //get source and target fields
         Map<String, Field> declaredSourceFields = getObjectFields(source);
         Map<String, Field> declaredTargetFields = getObjectFields(target);
 
+        Object sourceEntity;
+        Object sourceEntityId;
+
+        declaredTargetFields.forEach((s, f) -> {
+            if(f.isAnnotationPresent(Embedded.class)) {
+                try {
+                    Object o = f.getType().getDeclaredConstructor().newInstance();
+                    embeddables.add(o);
+                } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                         NoSuchMethodException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
         //go through all source fields and handle to target conversion
         for(String sourceFieldName : declaredSourceFields.keySet()) {
-            //check if the source field exists in target and is same type
             currentSourceField = declaredSourceFields.get(sourceFieldName);
             currentTargetField = declaredTargetFields.get(sourceFieldName);
-            if(currentTargetField != null && currentTargetField.getType().equals(currentSourceField.getType())) {
-                //accepted common type handling
-                if(isAcceptedCommonType(currentTargetField.getType()))
-                    setValueToField(currentTargetField, target, currentTargetField.getType(), getFieldValue(currentSourceField, source));
 
 
+
+            //identical field handling
+            if(currentTargetField != null && currentTargetField.getType().equals(currentSourceField.getType()) && isAcceptedCommonType(currentTargetField.getType())) {
+                setValueToField(currentTargetField, target, currentTargetField.getType(), getFieldValue(currentSourceField, source));
+                continue;
             }
+
+            //entity handling
+            if(currentSourceField.getType().isAnnotationPresent(Entity.class)) {
+                currentTargetField = declaredTargetFields.get(sourceFieldName + "Id");
+
+                if(currentTargetField != null) {
+                    sourceEntity = getFieldValue(currentSourceField, source);
+                    sourceSuperclass = sourceEntity.getClass().getSuperclass();
+
+                    while(sourceSuperclass != null && !sourceSuperclass.equals(Object.class) && !sourceSuperclass.equals(BaseEntity.class))
+                        sourceSuperclass = sourceSuperclass.getSuperclass();
+
+                    if(sourceSuperclass != null && sourceSuperclass.equals(BaseEntity.class)) {
+                        sourceEntityId = sourceSuperclass.getDeclaredMethod("getId").invoke(sourceEntity);
+                        setValueToField(currentTargetField, target, currentTargetField.getType(), sourceEntityId);
+                    }
+                }
+            }
+
+            //embedded handling
+            if(currentSourceField.isAnnotationPresent(Embedded.class))
+                convertSourceToTarget(getFieldValue(currentSourceField, source), target);
+        }
+
+        //target embedded handling
+        for(Object o : embeddables) {
+            convertSourceToTarget(source, o);
+            target.getClass().getDeclaredMethod("set" + o.getClass().getSimpleName(), o.getClass()).invoke(target, o);
         }
 
         //superclass handling
@@ -53,7 +104,7 @@ public class ObjectConverter implements ITypeAcceptor {
         String setterName;
         Map<String, Field> sourceSuperClassFields;
         Map<String, Field> targetSuperClassFields;
-        Class<?> sourceSuperclass = source.getClass().getSuperclass();
+        sourceSuperclass = source.getClass().getSuperclass();
         Class<?> targetSuperclass = target.getClass().getSuperclass();
         while(sourceSuperclass != null && targetSuperclass != null &&
                 !sourceSuperclass.equals(Object.class) && !targetSuperclass.equals(Object.class)) {
@@ -88,8 +139,6 @@ public class ObjectConverter implements ITypeAcceptor {
             sourceSuperclass = sourceSuperclass.getSuperclass();
             targetSuperclass = targetSuperclass.getSuperclass();
         }
-
-        System.out.println();
     }
 
     @Override

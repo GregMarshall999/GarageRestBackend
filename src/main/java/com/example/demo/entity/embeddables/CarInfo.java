@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class CarInfo {
+    @Column(nullable = false)
     private int cost;
     @Column(name = "car_range")
     private int range;

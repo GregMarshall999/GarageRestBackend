@@ -4,6 +4,7 @@ import com.example.demo.entity.embeddables.CarFields;
 import com.example.demo.entity.embeddables.CarInfo;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -15,6 +16,7 @@ public class Car extends BaseEntity {
     private CarInfo carInfo;
 
     @ManyToOne
+    @JoinColumn(nullable = false)
     private Wheel wheel;
 
     @ManyToOne
