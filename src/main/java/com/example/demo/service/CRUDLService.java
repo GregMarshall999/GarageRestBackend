@@ -8,6 +8,7 @@ import com.example.demo.tools.conversion.ObjectConverter;
 import com.example.demo.tools.paging.PageRequest;
 import com.example.demo.tools.paging.PageRequestUtil;
 import com.example.demo.tools.paging.PagedResponse;
+import com.example.demo.tools.search.Searcher;
 import com.example.demo.tools.sorting.SortRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -106,7 +107,7 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
         try {
             ENTITY entity = initObject(entityClass);
             objectConverter.convertSourceToTarget(searchDTO, entity);
-            ExampleMatcher matcher = converter.buildExampleMatcher(searchDTO);
+            ExampleMatcher matcher = Searcher.buildExampleMatcher(searchDTO);
             Example<ENTITY> example = Example.of(entity, matcher);
             return buildPagedResponse(repository.findAll(example, PageRequestUtil.toPageRequest(pageRequest)));
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {

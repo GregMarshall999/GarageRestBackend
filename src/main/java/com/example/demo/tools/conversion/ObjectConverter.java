@@ -159,28 +159,31 @@ public class ObjectConverter implements ITypeAcceptor {
 
                 if(currentTargetField != null) {
                     sourceEntity = getFieldValue(currentSourceField, source);
-                    sourceSuperclass = sourceEntity.getClass().getSuperclass();
 
-                    while(sourceSuperclass != null && !sourceSuperclass.equals(Object.class) && !sourceSuperclass.equals(BaseEntity.class))
-                        sourceSuperclass = sourceSuperclass.getSuperclass();
+                    if(sourceEntity != null) {
+                        sourceSuperclass = sourceEntity.getClass().getSuperclass();
 
-                    if(sourceSuperclass != null && sourceSuperclass.equals(BaseEntity.class)) {
-                        sourceEntityId = sourceSuperclass.getDeclaredMethod("getId").invoke(sourceEntity);
-                        setValueToField(currentTargetField, target, currentTargetField.getType(), sourceEntityId);
+                        while(sourceSuperclass != null && !sourceSuperclass.equals(Object.class) && !sourceSuperclass.equals(BaseEntity.class))
+                            sourceSuperclass = sourceSuperclass.getSuperclass();
+
+                        if(sourceSuperclass != null && sourceSuperclass.equals(BaseEntity.class)) {
+                            sourceEntityId = sourceSuperclass.getDeclaredMethod("getId").invoke(sourceEntity);
+                            setValueToField(currentTargetField, target, currentTargetField.getType(), sourceEntityId);
+                        }
                     }
                 }
                 continue;
             }
 
-            //identical field handling
-            if(currentTargetField != null && currentTargetField.getType().equals(currentSourceField.getType()) && isAcceptedCommonType(currentTargetField.getType())) {
-                setValueToField(currentTargetField, target, currentTargetField.getType(), getFieldValue(currentSourceField, source));
+            //embedded handling
+            if(currentSourceField.isAnnotationPresent(Embedded.class)) {
+                convertSourceToTarget(getFieldValue(currentSourceField, source), target);
                 continue;
             }
 
-            //embedded handling
-            if(currentSourceField.isAnnotationPresent(Embedded.class))
-                convertSourceToTarget(getFieldValue(currentSourceField, source), target);
+            //identical field handling
+            if(currentTargetField != null && currentTargetField.getType().equals(currentSourceField.getType()) && isAcceptedCommonType(currentTargetField.getType()))
+                setValueToField(currentTargetField, target, currentTargetField.getType(), getFieldValue(currentSourceField, source));
         }
 
         //target embedded handling
