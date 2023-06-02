@@ -8,6 +8,16 @@ import java.util.stream.Collectors;
 
 abstract class ConversionUtility {
 
+    public static boolean isAcceptedCommonType(Class<?> type) {
+        if(type.isPrimitive())
+            return true;
+
+        return switch (type.getTypeName()) {
+            case "java.lang.String", "java.time.LocalDateTime", "java.util.List" -> true;
+            default -> false;
+        };
+    }
+
     /**
      * Fetches all fields present in the object then Maps fields to their name
      * @param object - Object to fetch fields from

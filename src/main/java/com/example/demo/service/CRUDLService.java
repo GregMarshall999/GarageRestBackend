@@ -4,7 +4,6 @@ import com.example.demo.dto.BaseDTO;
 import com.example.demo.entity.BaseEntity;
 import com.example.demo.repository.IBaseRepository;
 import com.example.demo.tools.conversion.Converter;
-import com.example.demo.tools.conversion.ObjectConverter;
 import com.example.demo.tools.paging.PageRequest;
 import com.example.demo.tools.paging.PageRequestUtil;
 import com.example.demo.tools.paging.PagedResponse;
@@ -26,9 +25,6 @@ import java.util.List;
 @Service
 @Scope("prototype")
 public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implements ICRUDLService<ENTITY, DTO> {
-    @Autowired
-    private ObjectConverter objectConverter;
-
     @Autowired
     private Converter converter;
 
@@ -59,7 +55,7 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
 
         try {
             final ENTITY savedEntity = repository.save(entity);
-            objectConverter.convertSourceToTarget(savedEntity, dto);
+            converter.convertSourceToTarget(savedEntity, dto);
             return dto;
         } catch (Exception e) {
             return null;
@@ -75,7 +71,7 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
                 return null;
 
             DTO dto = initObject(dtoClass);
-            objectConverter.convertSourceToTarget(entity, dto);
+            converter.convertSourceToTarget(entity, dto);
             return dto;
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -106,8 +102,8 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
     public PagedResponse<DTO> search(DTO searchDTO, PageRequest pageRequest) {
         try {
             ENTITY entity = initObject(entityClass);
-            objectConverter.convertSourceToTarget(searchDTO, entity);
-            ExampleMatcher matcher = Searcher.buildExampleMatcher(searchDTO);
+            converter.convertSourceToTarget(searchDTO, entity);
+            ExampleMatcher matcher = Searcher.buildExampleMatcher(entity);
             Example<ENTITY> example = Example.of(entity, matcher);
             return buildPagedResponse(repository.findAll(example, PageRequestUtil.toPageRequest(pageRequest)));
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
@@ -119,9 +115,9 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
     public PagedResponse<DTO> sortSearch(DTO searchDTO, SortRequest sortRequest, PageRequest pageRequest) {
         try {
             ENTITY entity = initObject(entityClass);
-            objectConverter.convertSourceToTarget(searchDTO, entity);
+            converter.convertSourceToTarget(searchDTO, entity);
 
-            Example<ENTITY> example = Example.of(entity, converter.buildExampleMatcher(searchDTO));
+            Example<ENTITY> example = Example.of(entity, Searcher.buildExampleMatcher(searchDTO));
 
             if(sortRequest.getDirection().equals("asc") || sortRequest.getDirection().equals("desc"))
                 return buildPagedResponse(repository.findAll(
@@ -155,7 +151,7 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
 
     protected void updateEntity(ENTITY entity, DTO dto) {
         try {
-            objectConverter.convertSourceToTarget(dto, entity);
+            converter.convertSourceToTarget(dto, entity);
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -175,7 +171,7 @@ public class CRUDLService<ENTITY extends BaseEntity, DTO extends BaseDTO> implem
                 return new PagedResponse<>(Collections.emptyList(), 0, response.getTotalElements());
 
             final List<DTO> dtos = new ArrayList<>();
-            objectConverter.convertSourceListToTargetList(response.getContent(), dtos, () -> initObject(dtoClass));
+            converter.convertSourceListToTargetList(response.getContent(), dtos, () -> initObject(dtoClass));
             return new PagedResponse<>(dtos, dtos.size(), response.getTotalElements());
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);

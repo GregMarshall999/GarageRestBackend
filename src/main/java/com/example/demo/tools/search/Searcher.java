@@ -1,63 +1,96 @@
 package com.example.demo.tools.search;
 
+import com.example.demo.entity.BaseEntity;
+import jakarta.persistence.Embedded;
 import org.springframework.data.domain.ExampleMatcher;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Searcher {
-    public static <DTO> ExampleMatcher buildExampleMatcher(DTO searchDTO) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String methodName;
-        ExampleMatcher matcher;
-        boolean fieldSet = false;
-        boolean isSingleField = true;
+    public static <O> ExampleMatcher buildExampleMatcher(O searchObject) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        ExampleMatcher matcher = ExampleMatcher.matchingAll();
+        List<String> ignoredPaths = setAllIgnoredPaths(searchObject, "");
 
-        List<Field> declaredFields = List.of(searchDTO.getClass().getDeclaredFields());
+        if(ignoredPaths.size() != 0)
+            matcher = matcher.withIgnorePaths(ignoredPaths.toArray(new String[0]));
+
+        return matcher;
+    }
+
+    private static <O> List<String> setAllIgnoredPaths(O searchObject, String pathToField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<String> ignoredPaths = new ArrayList<>();
+        List<Field> declaredFields = List.of(searchObject.getClass().getDeclaredFields());
+
+        String getterName;
+        Object fieldValue;
+        String path;
 
         for(Field field : declaredFields) {
-            if(!isSingleField)
-                break;
-
             if(field.getType().equals(boolean.class)) {
                 if(field.getName().startsWith("is"))
-                    methodName = field.getName();
+                    getterName = field.getName();
                 else
-                    methodName = "is" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
-
-                if(fieldSet) {
-                    isSingleField &= !((boolean) searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO));
-                }
-                else
-                    fieldSet |= ((boolean) searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO));
-
-                continue;
-            }
-
-            methodName = "get" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
-
-            if(field.getType().equals(long.class)) {
-                if(fieldSet) {
-                    isSingleField &= (long) searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO) != 0L;
-                }
-                else
-                    fieldSet |= (long)searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO) != 0L;
-
-                continue;
-            }
-
-            if(fieldSet) {
-                isSingleField &= searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO) != null;
+                    getterName = "is" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
             }
             else
-                fieldSet |= searchDTO.getClass().getDeclaredMethod(methodName).invoke(searchDTO) != null;
+                getterName = "get" + field.getName().toUpperCase().charAt(0) + field.getName().substring(1);
+
+            fieldValue = searchObject.getClass().getDeclaredMethod(getterName).invoke(searchObject);
+            path = pathToField + field.getName();
+
+            if(field.getType().isPrimitive()) {
+                if(fieldValue instanceof Boolean)
+                    if(fieldValue.equals(false))
+                        ignoredPaths.add(path);
+
+                if( fieldValue instanceof Byte ||
+                    fieldValue instanceof Short ||
+                    fieldValue instanceof Integer)
+                    if(fieldValue.equals(0))
+                        ignoredPaths.add(path);
+
+                if(fieldValue instanceof Long)
+                    if(fieldValue.equals(0L))
+                        ignoredPaths.add(path);
+
+                if(fieldValue instanceof Float)
+                    if(fieldValue.equals(0.0f))
+                        ignoredPaths.add(path);
+
+                if(fieldValue instanceof Double)
+                    if(fieldValue.equals(0.0d))
+                        ignoredPaths.add(path);
+
+                if(fieldValue instanceof Character)
+                    if(fieldValue.equals('\u0000'))
+                        ignoredPaths.add(path);
+
+                continue;
+            }
+
+            if(field.isAnnotationPresent(Embedded.class) && fieldValue != null) {
+                ignoredPaths.addAll(setAllIgnoredPaths(fieldValue, field.getName()+"."));
+                continue;
+            }
+
+            if(fieldValue == null)
+                ignoredPaths.add(path);
         }
 
-        if(isSingleField) {
+        Class<?> superclass = searchObject.getClass().getSuperclass();
+        while (superclass != null && !superclass.equals(Object.class) && !superclass.equals(BaseEntity.class))
+            superclass = superclass.getSuperclass();
 
+        if(superclass != null && superclass.equals(BaseEntity.class)) {
+            fieldValue = superclass.getDeclaredMethod("getId").invoke(searchObject);
+
+            if(fieldValue != null && fieldValue.equals(0L))
+                ignoredPaths.add("id");
         }
 
-        matcher = ExampleMatcher.matchingAny().withIgnoreNullValues();
-        return matcher;
+        return ignoredPaths;
     }
 }
