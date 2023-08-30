@@ -10,19 +10,21 @@ import com.example.demo.entity.embeddables.CarInfo;
 import com.example.demo.entity.embeddables.GarageAccounting;
 import com.example.demo.entity.embeddables.GarageFields;
 import com.example.demo.tools.conversion.ConverterV2;
-import jakarta.persistence.Entity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
 public class ApplicationStartupRunner implements CommandLineRunner {
+    @Autowired
+    ConverterV2 converterV2;
+
     @Override
     public void run(String... args) throws Exception {
-        ConverterV2 converterV2 = new ConverterV2();
+        converterV2.initRepos();
 
         Wheel wheel = new Wheel();
         wheel.setId(1);
@@ -76,6 +78,9 @@ public class ApplicationStartupRunner implements CommandLineRunner {
         GarageDTO garageDTO = new GarageDTO();
 
         converterV2.convertSourceToTargetV2(garage, garageDTO);
+
+        Garage g = new Garage();
+        converterV2.convertSourceToTargetV2(garageDTO, g);
 
         System.out.println(garageDTO);
     }
