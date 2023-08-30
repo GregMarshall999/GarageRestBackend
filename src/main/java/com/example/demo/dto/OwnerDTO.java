@@ -7,6 +7,7 @@ public class OwnerDTO extends BaseDTO {
     private String name;
     private List<LocalDateTime> appointments;
     private List<Long> carIds;
+    private List<Long> ownerIds;
 
     public String getName() {
         return name;
@@ -30,5 +31,13 @@ public class OwnerDTO extends BaseDTO {
 
     public void setCarIds(List<Long> carIds) {
         this.carIds = carIds;
+    }
+
+    public List<Long> getOwnerIds() {
+        return ownerIds;
+    }
+
+    public void setOwnerIds(List<Long> ownerIds) {
+        this.ownerIds = ownerIds;
     }
 }

@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.entity.embeddables.GarageFields;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 import java.util.List;
@@ -14,6 +15,9 @@ public class Garage extends BaseEntity {
 
     @OneToMany(mappedBy = "garage")
     private List<Car> cars;
+
+    @ManyToOne
+    private Owner owner;
 
     public GarageFields getGarageFields() {
         return garageFields;
@@ -29,5 +33,13 @@ public class Garage extends BaseEntity {
 
     public void setCars(List<Car> cars) {
         this.cars = cars;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
 }

@@ -7,6 +7,7 @@ import com.example.demo.service.ICRUDLService;
 import com.example.demo.tools.paging.PageRequest;
 import com.example.demo.tools.paging.PagedResponse;
 import com.example.demo.tools.sorting.SortRequest;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public abstract class AbstractCRUDLController<ENTITY extends BaseEntity, DTO extends BaseDTO> {
     protected final ICRUDLService<ENTITY, DTO> service;
+
+    @Autowired
+    private EntityManager manager;
 
     @Autowired
     public AbstractCRUDLController(ICRUDLService<ENTITY, DTO> service, Class<ENTITY> entityClass, Class<DTO> dtoClass,

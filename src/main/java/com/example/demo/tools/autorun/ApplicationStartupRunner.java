@@ -1,81 +1,82 @@
 package com.example.demo.tools.autorun;
 
-import com.example.demo.dto.CarDTO;
-import com.example.demo.dto.WheelDTO;
+import com.example.demo.dto.GarageDTO;
 import com.example.demo.entity.Car;
+import com.example.demo.entity.Garage;
+import com.example.demo.entity.Owner;
 import com.example.demo.entity.Wheel;
-import com.example.demo.repository.ICarRepository;
-import com.example.demo.repository.IWheelRepository;
-import com.example.demo.service.CRUDLService;
-import com.example.demo.tools.paging.PageRequest;
-import com.example.demo.tools.paging.PagedResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.entity.embeddables.CarFields;
+import com.example.demo.entity.embeddables.CarInfo;
+import com.example.demo.entity.embeddables.GarageAccounting;
+import com.example.demo.entity.embeddables.GarageFields;
+import com.example.demo.tools.conversion.ConverterV2;
+import jakarta.persistence.Entity;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Configuration
 public class ApplicationStartupRunner implements CommandLineRunner {
-
-    @Autowired
-    private CRUDLService<Car, CarDTO> carService;
-
-    @Autowired
-    private CRUDLService<Wheel, WheelDTO> wheelService;
-
-    @Autowired
-    private IWheelRepository wheelRepository;
-
-    @Autowired
-    private ICarRepository carRepository;
-
     @Override
     public void run(String... args) throws Exception {
+        ConverterV2 converterV2 = new ConverterV2();
 
-        wheelService.initService(Wheel.class, WheelDTO.class, wheelRepository);
-        carService.initService(Car.class, CarDTO.class, carRepository);
+        Wheel wheel = new Wheel();
+        wheel.setId(1);
+        wheel.setBrand("Brand");
+        wheel.setPrice(50);
 
-        PageRequest pageRequest = new PageRequest();
-        pageRequest.setPage(0);
-        pageRequest.setSize(10);
+        CarFields carFields = new CarFields();
+        carFields.setCarName("Tester");
+        carFields.setNew(true);
 
-        WheelDTO idDto = new WheelDTO();
-        idDto.setId(1);
+        CarInfo carInfo = new CarInfo();
+        carInfo.setCost(100);
+        carInfo.setMotInfo("Test");
+        carInfo.setRange(500);
 
-        WheelDTO priceDTO = new WheelDTO();
-        priceDTO.setPrice(400);
+        Car car1 = new Car();
+        car1.setId(1);
+        car1.setCarFields(carFields);
+        car1.setCarInfo(carInfo);
+        car1.setWheel(wheel);
 
-        WheelDTO brandDTO = new WheelDTO();
-        brandDTO.setBrand("F1");
+        Car car2 = new Car();
+        car2.setId(2);
+        car2.setCarFields(carFields);
+        car2.setCarInfo(carInfo);
+        car2.setWheel(wheel);
 
-        WheelDTO complexWheel = new WheelDTO();
-        complexWheel.setBrand("F1");
-        complexWheel.setPrice(4000);
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setName("Branni");
+        owner.setCars(List.of(car1, car2));
+        owner.setAppointments(List.of(LocalDateTime.now()));
 
-        PagedResponse<WheelDTO> search = wheelService.search(idDto, pageRequest);
-        PagedResponse<WheelDTO> search1 = wheelService.search(priceDTO, pageRequest);
-        PagedResponse<WheelDTO> search2 = wheelService.search(brandDTO, pageRequest);
-        PagedResponse<WheelDTO> search3 = wheelService.search(complexWheel, pageRequest);
+        GarageAccounting garageAccounting = new GarageAccounting();
+        garageAccounting.setCost(100);
+        garageAccounting.setRef("26451K");
+        garageAccounting.setIncome(500);
 
-        System.out.println();
+        GarageFields garageFields = new GarageFields();
+        garageFields.setGarageAccounting(garageAccounting);
 
-        CarDTO carIdDTO = new CarDTO();
-        carIdDTO.setId(1);
+        Garage garage = new Garage();
+        garage.setId(1);
+        garage.setGarageFields(garageFields);
+        garage.setOwner(owner);
+        garage.setCars(List.of(car1, car2));
 
-        CarDTO carNameDTO = new CarDTO();
-        carNameDTO.setCarName("Clio");
+        car1.setGarage(garage);
+        car2.setGarage(garage);
 
-        CarDTO carGarageDTO = new CarDTO();
-        carGarageDTO.setGarageId(1);
+        GarageDTO garageDTO = new GarageDTO();
 
-        CarDTO complexCar = new CarDTO();
-        complexCar.setGarageId(1);
-        complexCar.setCarName("Clio");
+        converterV2.convertSourceToTargetV2(garage, garageDTO);
 
-        PagedResponse<CarDTO> carSearch = carService.search(carIdDTO, pageRequest);
-        PagedResponse<CarDTO> carSearch1 = carService.search(carNameDTO, pageRequest);
-        PagedResponse<CarDTO> carSearch2 = carService.search(carGarageDTO, pageRequest);
-        PagedResponse<CarDTO> carSearch3 = carService.search(complexCar, pageRequest);
-
-        System.out.println();
+        System.out.println(garageDTO);
     }
 }

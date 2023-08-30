@@ -6,8 +6,8 @@ public class GarageDTO extends BaseDTO {
     private String ref;
     private int cost;
     private int income;
-    private String ownerName;
     private List<Long> carIds;
+    private long ownerId;
 
     public String getRef() {
         return ref;
@@ -33,19 +33,19 @@ public class GarageDTO extends BaseDTO {
         this.income = income;
     }
 
-    public String getOwnerName() {
-        return ownerName;
-    }
-
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
-    }
-
     public List<Long> getCarIds() {
         return carIds;
     }
 
     public void setCarIds(List<Long> carIds) {
         this.carIds = carIds;
+    }
+
+    public long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(long ownerId) {
+        this.ownerId = ownerId;
     }
 }
