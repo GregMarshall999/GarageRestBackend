@@ -1,4 +1,4 @@
 package com.example.garage.entity;
 
-public class Car {
+public class Garage {
 }
