@@ -1502,3 +1502,26 @@ Caused by: java.lang.NullPointerException: Cannot invoke "com.example.demo.repos
 2023-08-30T16:33:38.626+02:00  INFO 9700 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2023-08-30T16:33:38.626+02:00  INFO 9700 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2023-08-30T16:33:38.628+02:00  INFO 9700 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2023-08-30T16:33:40.383+02:00  INFO 15788 --- [main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 17.0.6 with PID 15788 (C:\Users\Admin Stagiaire\Documents\projets\demo\target\classes started by Admin Stagiaire in C:\Users\Admin Stagiaire\Documents\projets\demo)
+2023-08-30T16:33:40.385+02:00  INFO 15788 --- [main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+2023-08-30T16:33:40.932+02:00  INFO 15788 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-08-30T16:33:40.984+02:00  INFO 15788 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 46 ms. Found 4 JPA repository interfaces.
+2023-08-30T16:33:41.421+02:00  INFO 15788 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-08-30T16:33:41.430+02:00  INFO 15788 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-08-30T16:33:41.430+02:00  INFO 15788 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.8]
+2023-08-30T16:33:41.506+02:00  INFO 15788 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-08-30T16:33:41.507+02:00  INFO 15788 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1090 ms
+2023-08-30T16:33:41.636+02:00  INFO 15788 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-08-30T16:33:41.681+02:00  INFO 15788 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.1.7.Final
+2023-08-30T16:33:41.912+02:00  INFO 15788 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-08-30T16:33:41.964+02:00  INFO 15788 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@4d69d288
+2023-08-30T16:33:41.965+02:00  INFO 15788 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-08-30T16:33:41.984+02:00  INFO 15788 --- [main] SQL dialect                              : HHH000400: Using dialect: org.hibernate.dialect.MariaDBDialect
+2023-08-30T16:33:42.616+02:00  INFO 15788 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-08-30T16:33:42.621+02:00  INFO 15788 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-08-30T16:33:42.958+02:00  WARN 15788 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-08-30T16:33:43.324+02:00  INFO 15788 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-08-30T16:33:43.333+02:00  INFO 15788 --- [main] com.example.demo.DemoApplication         : Started DemoApplication in 3.261 seconds (process running for 3.526)
+2023-08-30T16:35:43.481+02:00  INFO 15788 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-08-30T16:35:43.482+02:00  INFO 15788 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2023-08-30T16:35:43.484+02:00  INFO 15788 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

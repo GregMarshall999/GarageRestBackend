@@ -1,6 +1,5 @@
 package com.example.demo.tools.autorun;
 
-import com.example.demo.dto.GarageDTO;
 import com.example.demo.entity.Car;
 import com.example.demo.entity.Garage;
 import com.example.demo.entity.Owner;
@@ -9,8 +8,6 @@ import com.example.demo.entity.embeddables.CarFields;
 import com.example.demo.entity.embeddables.CarInfo;
 import com.example.demo.entity.embeddables.GarageAccounting;
 import com.example.demo.entity.embeddables.GarageFields;
-import com.example.demo.tools.conversion.ConverterV2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,13 +16,9 @@ import java.util.List;
 
 @Configuration
 public class ApplicationStartupRunner implements CommandLineRunner {
-    @Autowired
-    ConverterV2 converterV2;
 
     @Override
-    public void run(String... args) throws Exception {
-        converterV2.initRepos();
-
+    public void run(String... args) {
         Wheel wheel = new Wheel();
         wheel.setId(1);
         wheel.setBrand("Brand");
@@ -74,14 +67,5 @@ public class ApplicationStartupRunner implements CommandLineRunner {
 
         car1.setGarage(garage);
         car2.setGarage(garage);
-
-        GarageDTO garageDTO = new GarageDTO();
-
-        converterV2.convertSourceToTargetV2(garage, garageDTO);
-
-        Garage g = new Garage();
-        converterV2.convertSourceToTargetV2(garageDTO, g);
-
-        System.out.println(garageDTO);
     }
 }
